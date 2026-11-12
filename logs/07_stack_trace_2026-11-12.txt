@@ -1,0 +1,503 @@
+================================================================
+ 07_stack - build, run and single-step stack trace
+ Date: Thursday, 12 November 2026 16:53
+ Host: Ubuntu 24.04.4 LTS (x86_64), kernel 6.6.87.2-microsoft-standard-WSL2
+ Tools: NASM version 2.16.01, GNU ld (GNU Binutils for Ubuntu) 2.42, GNU gdb (Ubuntu 15.1-1ubuntu1~24.04.1) 15.1
+================================================================
+
+----------------------------------------------------------------
+ 07_stack/01.asm  (64-bit)
+----------------------------------------------------------------
+$ nasm -f elf64 -g -F dwarf 07_stack/01.asm -o build/07_stack/01.o
+$ ld  build/07_stack/01.o -o build/07_stack/01
+$ ./build/07_stack/01 ; echo $?
+exit status: 0
+
+$ objdump -d -M intel build/07_stack/01
+0000000000401000 <_start>:
+  401000:	mov    eax,0x64
+  401005:	mov    ebx,0xc8
+  40100a:	push   rax
+  40100b:	push   rbx
+  40100c:	nop
+  40100d:	pop    rcx
+  40100e:	pop    rdx
+  40100f:	nop
+  401010:	mov    eax,0x3c
+  401015:	xor    rdi,rdi
+  401018:	syscall
+
+--- GDB single-step trace (state shown AFTER each instruction executes) ---
+_start () at 07_stack/01.asm:5
+5	    mov rax, 100
+[initial]  rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0 rbx=0 rcx=0 rdx=0
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x401000 <_start>:	mov    eax,0x64
+6	    mov rbx, 200
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x64 rbx=0 rcx=0 rdx=0 rip=0x401005
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401005 <_start+5>:	mov    ebx,0xc8
+8	    push rax
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x64 rbx=0xc8 rcx=0 rdx=0 rip=0x40100a
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x40100a <_start+10>:	push   rax
+_start () at 07_stack/01.asm:9
+9	    push rbx
+           rsp=0x00007fffffffe188 rbp=000000000000000000 rax=0x64 rbx=0xc8 rcx=0 rdx=0 rip=0x40100b
+0x7fffffffe188:	0x0000000000000064	0x0000000000000001
+0x7fffffffe198:	0x00007fffffffe402	0x0000000000000000
+=> 0x40100b <_start+11>:	push   rbx
+_start () at 07_stack/01.asm:10
+10	    nop
+           rsp=0x00007fffffffe180 rbp=000000000000000000 rax=0x64 rbx=0xc8 rcx=0 rdx=0 rip=0x40100c
+0x7fffffffe180:	0x00000000000000c8	0x0000000000000064
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x40100c <_start+12>:	nop
+12	    pop rcx
+           rsp=0x00007fffffffe180 rbp=000000000000000000 rax=0x64 rbx=0xc8 rcx=0 rdx=0 rip=0x40100d
+0x7fffffffe180:	0x00000000000000c8	0x0000000000000064
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x40100d <_start+13>:	pop    rcx
+_start () at 07_stack/01.asm:13
+13	    pop rdx
+           rsp=0x00007fffffffe188 rbp=000000000000000000 rax=0x64 rbx=0xc8 rcx=0xc8 rdx=0 rip=0x40100e
+0x7fffffffe188:	0x0000000000000064	0x0000000000000001
+0x7fffffffe198:	0x00007fffffffe402	0x0000000000000000
+=> 0x40100e <_start+14>:	pop    rdx
+_start () at 07_stack/01.asm:14
+14	    nop
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x64 rbx=0xc8 rcx=0xc8 rdx=0x64 rip=0x40100f
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x40100f <_start+15>:	nop
+16	    mov rax, 60
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x64 rbx=0xc8 rcx=0xc8 rdx=0x64 rip=0x401010
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401010 <_start+16>:	mov    eax,0x3c
+17	    xor rdi, rdi
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x3c rbx=0xc8 rcx=0xc8 rdx=0x64 rip=0x401015
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401015 <_start+21>:	xor    rdi,rdi
+18	    syscall
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x3c rbx=0xc8 rcx=0xc8 rdx=0x64 rip=0x401018
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401018 <_start+24>:	syscall
+[Inferior 1 (process 514) exited normally]
+
+----------------------------------------------------------------
+ 07_stack/02.asm  (64-bit)
+----------------------------------------------------------------
+$ nasm -f elf64 -g -F dwarf 07_stack/02.asm -o build/07_stack/02.o
+$ ld  build/07_stack/02.o -o build/07_stack/02
+$ ./build/07_stack/02 ; echo $?
+exit status: 0
+
+$ objdump -d -M intel build/07_stack/02
+0000000000401000 <_start>:
+  401000:	call   40100f <work>
+  401005:	mov    eax,0x3c
+  40100a:	xor    rdi,rdi
+  40100d:	syscall
+
+000000000040100f <work>:
+  40100f:	push   rbp
+  401010:	mov    rbp,rsp
+  401013:	sub    rsp,0x10
+  401017:	mov    QWORD PTR [rbp-0x8],0x64
+  40101f:	mov    QWORD PTR [rbp-0x10],0xc8
+  401027:	mov    rax,QWORD PTR [rbp-0x8]
+  40102b:	mov    rbx,QWORD PTR [rbp-0x10]
+  40102f:	nop
+  401030:	mov    rsp,rbp
+  401033:	pop    rbp
+  401034:	ret
+
+--- GDB single-step trace (state shown AFTER each instruction executes) ---
+_start () at 07_stack/02.asm:5
+5	    call work
+[initial]  rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0 rbx=0 rcx=0 rdx=0
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x401000 <_start>:	call   0x40100f <work>
+work () at 07_stack/02.asm:11
+11	    push rbp
+           rsp=0x00007fffffffe188 rbp=000000000000000000 rax=0 rbx=0 rcx=0 rdx=0 rip=0x40100f
+0x7fffffffe188:	0x0000000000401005	0x0000000000000001
+0x7fffffffe198:	0x00007fffffffe402	0x0000000000000000
+=> 0x40100f <work>:	push   rbp
+12	    mov rbp, rsp
+           rsp=0x00007fffffffe180 rbp=000000000000000000 rax=0 rbx=0 rcx=0 rdx=0 rip=0x401010
+0x7fffffffe180:	0x0000000000000000	0x0000000000401005
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x401010 <work+1>:	mov    rbp,rsp
+13	    sub rsp, 16
+           rsp=0x00007fffffffe180 rbp=0x00007fffffffe180 rax=0 rbx=0 rcx=0 rdx=0 rip=0x401013
+0x7fffffffe180:	0x0000000000000000	0x0000000000401005
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x401013 <work+4>:	sub    rsp,0x10
+15	    mov qword [rbp - 8], 100
+           rsp=0x00007fffffffe170 rbp=0x00007fffffffe180 rax=0 rbx=0 rcx=0 rdx=0 rip=0x401017
+0x7fffffffe170:	0x0000000000000000	0x0000000000000000
+0x7fffffffe180:	0x0000000000000000	0x0000000000401005
+=> 0x401017 <work+8>:	mov    QWORD PTR [rbp-0x8],0x64
+16	    mov qword [rbp - 16], 200
+           rsp=0x00007fffffffe170 rbp=0x00007fffffffe180 rax=0 rbx=0 rcx=0 rdx=0 rip=0x40101f
+0x7fffffffe170:	0x0000000000000000	0x0000000000000064
+0x7fffffffe180:	0x0000000000000000	0x0000000000401005
+=> 0x40101f <work+16>:	mov    QWORD PTR [rbp-0x10],0xc8
+18	    mov rax, [rbp - 8]
+           rsp=0x00007fffffffe170 rbp=0x00007fffffffe180 rax=0 rbx=0 rcx=0 rdx=0 rip=0x401027
+0x7fffffffe170:	0x00000000000000c8	0x0000000000000064
+0x7fffffffe180:	0x0000000000000000	0x0000000000401005
+=> 0x401027 <work+24>:	mov    rax,QWORD PTR [rbp-0x8]
+19	    mov rbx, [rbp - 16]
+           rsp=0x00007fffffffe170 rbp=0x00007fffffffe180 rax=0x64 rbx=0 rcx=0 rdx=0 rip=0x40102b
+0x7fffffffe170:	0x00000000000000c8	0x0000000000000064
+0x7fffffffe180:	0x0000000000000000	0x0000000000401005
+=> 0x40102b <work+28>:	mov    rbx,QWORD PTR [rbp-0x10]
+20	    nop
+           rsp=0x00007fffffffe170 rbp=0x00007fffffffe180 rax=0x64 rbx=0xc8 rcx=0 rdx=0 rip=0x40102f
+0x7fffffffe170:	0x00000000000000c8	0x0000000000000064
+0x7fffffffe180:	0x0000000000000000	0x0000000000401005
+=> 0x40102f <work+32>:	nop
+22	    mov rsp, rbp
+           rsp=0x00007fffffffe170 rbp=0x00007fffffffe180 rax=0x64 rbx=0xc8 rcx=0 rdx=0 rip=0x401030
+0x7fffffffe170:	0x00000000000000c8	0x0000000000000064
+0x7fffffffe180:	0x0000000000000000	0x0000000000401005
+=> 0x401030 <work+33>:	mov    rsp,rbp
+23	    pop rbp
+           rsp=0x00007fffffffe180 rbp=0x00007fffffffe180 rax=0x64 rbx=0xc8 rcx=0 rdx=0 rip=0x401033
+0x7fffffffe180:	0x0000000000000000	0x0000000000401005
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x401033 <work+36>:	pop    rbp
+24	    ret
+           rsp=0x00007fffffffe188 rbp=000000000000000000 rax=0x64 rbx=0xc8 rcx=0 rdx=0 rip=0x401034
+0x7fffffffe188:	0x0000000000401005	0x0000000000000001
+0x7fffffffe198:	0x00007fffffffe402	0x0000000000000000
+=> 0x401034 <work+37>:	ret
+_start () at 07_stack/02.asm:6
+6	    mov rax, 60
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x64 rbx=0xc8 rcx=0 rdx=0 rip=0x401005
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401005 <_start+5>:	mov    eax,0x3c
+7	    xor rdi, rdi
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x3c rbx=0xc8 rcx=0 rdx=0 rip=0x40100a
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x40100a <_start+10>:	xor    rdi,rdi
+8	    syscall
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x3c rbx=0xc8 rcx=0 rdx=0 rip=0x40100d
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x40100d <_start+13>:	syscall
+[Inferior 1 (process 538) exited normally]
+
+----------------------------------------------------------------
+ 07_stack/03.asm  (64-bit)
+----------------------------------------------------------------
+$ nasm -f elf64 -g -F dwarf 07_stack/03.asm -o build/07_stack/03.o
+$ ld  build/07_stack/03.o -o build/07_stack/03
+$ ./build/07_stack/03 ; echo $?
+exit status: 0
+
+$ objdump -d -M intel build/07_stack/03
+0000000000401000 <_start>:
+  401000:	mov    eax,0xa
+  401005:	call   401015 <calculate>
+
+000000000040100a <after_call>:
+  40100a:	nop
+  40100b:	mov    eax,0x3c
+  401010:	xor    rdi,rdi
+  401013:	syscall
+
+0000000000401015 <calculate>:
+  401015:	add    rax,0x5
+  401019:	ret
+
+--- GDB single-step trace (state shown AFTER each instruction executes) ---
+_start () at 07_stack/03.asm:5
+5	    mov rax, 10
+[initial]  rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0 rbx=0 rcx=0 rdx=0
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x401000 <_start>:	mov    eax,0xa
+6	    call calculate
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0xa rbx=0 rcx=0 rdx=0 rip=0x401005
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401005 <_start+5>:	call   0x401015 <calculate>
+calculate () at 07_stack/03.asm:17
+17	    add rax, 5
+           rsp=0x00007fffffffe188 rbp=000000000000000000 rax=0xa rbx=0 rcx=0 rdx=0 rip=0x401015
+0x7fffffffe188:	0x000000000040100a	0x0000000000000001
+0x7fffffffe198:	0x00007fffffffe402	0x0000000000000000
+=> 0x401015 <calculate>:	add    rax,0x5
+18	    ret
+           rsp=0x00007fffffffe188 rbp=000000000000000000 rax=0xf rbx=0 rcx=0 rdx=0 rip=0x401019
+0x7fffffffe188:	0x000000000040100a	0x0000000000000001
+0x7fffffffe198:	0x00007fffffffe402	0x0000000000000000
+=> 0x401019 <calculate+4>:	ret
+after_call () at 07_stack/03.asm:10
+10	    nop
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0xf rbx=0 rcx=0 rdx=0 rip=0x40100a
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x40100a <after_call>:	nop
+12	    mov rax, 60
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0xf rbx=0 rcx=0 rdx=0 rip=0x40100b
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x40100b <after_call+1>:	mov    eax,0x3c
+13	    xor rdi, rdi
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x3c rbx=0 rcx=0 rdx=0 rip=0x401010
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401010 <after_call+6>:	xor    rdi,rdi
+14	    syscall
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x3c rbx=0 rcx=0 rdx=0 rip=0x401013
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401013 <after_call+9>:	syscall
+[Inferior 1 (process 562) exited normally]
+
+----------------------------------------------------------------
+ 07_stack/04.asm  (32-bit)
+----------------------------------------------------------------
+$ nasm -f elf32 -g -F dwarf 07_stack/04.asm -o build/07_stack/04.o
+$ ld -m elf_i386 build/07_stack/04.o -o build/07_stack/04
+$ ./build/07_stack/04 ; echo $?
+exit status: 0
+
+$ objdump -d -M intel build/07_stack/04
+08049000 <_start>:
+ 8049000:	call   804900e <work>
+ 8049005:	mov    eax,0x1
+ 804900a:	xor    ebx,ebx
+ 804900c:	int    0x80
+
+0804900e <work>:
+ 804900e:	push   ebp
+ 804900f:	mov    ebp,esp
+ 8049011:	sub    esp,0x8
+ 8049014:	mov    DWORD PTR [ebp-0x4],0x64
+ 804901b:	mov    DWORD PTR [ebp-0x8],0xc8
+ 8049022:	mov    eax,DWORD PTR [ebp-0x4]
+ 8049025:	mov    ebx,DWORD PTR [ebp-0x8]
+ 8049028:	nop
+ 8049029:	mov    esp,ebp
+ 804902b:	pop    ebp
+ 804902c:	ret
+
+--- GDB single-step trace (state shown AFTER each instruction executes) ---
+_start () at 07_stack/04.asm:6
+6	    call work
+[initial]  esp=0xffffd2b0 ebp=0000000000 eax=0 ebx=0 ecx=0 edx=0
+0xffffd2b0:	0x00000001	0xffffd402
+=> 0x8049000 <_start>:	call   0x804900e <work>
+14	    push ebp
+           esp=0xffffd2ac ebp=0000000000 eax=0 ebx=0 ecx=0 edx=0 eip=0x804900e
+0xffffd2ac:	0x08049005	0x00000001	0xffffd402	0x00000000
+=> 0x804900e <work>:	push   ebp
+15	    mov ebp, esp
+           esp=0xffffd2a8 ebp=0000000000 eax=0 ebx=0 ecx=0 edx=0 eip=0x804900f
+0xffffd2a8:	0x00000000	0x08049005	0x00000001	0xffffd402
+=> 0x804900f <work+1>:	mov    ebp,esp
+work () at 07_stack/04.asm:16
+16	    sub esp, 8
+           esp=0xffffd2a8 ebp=0xffffd2a8 eax=0 ebx=0 ecx=0 edx=0 eip=0x8049011
+0xffffd2a8:	0x00000000	0x08049005	0x00000001	0xffffd402
+=> 0x8049011 <work+3>:	sub    esp,0x8
+18	    mov dword [ebp - 4], 100
+           esp=0xffffd2a0 ebp=0xffffd2a8 eax=0 ebx=0 ecx=0 edx=0 eip=0x8049014
+0xffffd2a0:	0x00000000	0x00000000	0x00000000	0x08049005
+=> 0x8049014 <work+6>:	mov    DWORD PTR [ebp-0x4],0x64
+19	    mov dword [ebp - 8], 200
+           esp=0xffffd2a0 ebp=0xffffd2a8 eax=0 ebx=0 ecx=0 edx=0 eip=0x804901b
+0xffffd2a0:	0x00000000	0x00000064	0x00000000	0x08049005
+=> 0x804901b <work+13>:	mov    DWORD PTR [ebp-0x8],0xc8
+21	    mov eax, [ebp - 4]
+           esp=0xffffd2a0 ebp=0xffffd2a8 eax=0 ebx=0 ecx=0 edx=0 eip=0x8049022
+0xffffd2a0:	0x000000c8	0x00000064	0x00000000	0x08049005
+=> 0x8049022 <work+20>:	mov    eax,DWORD PTR [ebp-0x4]
+22	    mov ebx, [ebp - 8]
+           esp=0xffffd2a0 ebp=0xffffd2a8 eax=0x64 ebx=0 ecx=0 edx=0 eip=0x8049025
+0xffffd2a0:	0x000000c8	0x00000064	0x00000000	0x08049005
+=> 0x8049025 <work+23>:	mov    ebx,DWORD PTR [ebp-0x8]
+23	    nop
+           esp=0xffffd2a0 ebp=0xffffd2a8 eax=0x64 ebx=0xc8 ecx=0 edx=0 eip=0x8049028
+0xffffd2a0:	0x000000c8	0x00000064	0x00000000	0x08049005
+=> 0x8049028 <work+26>:	nop
+25	    mov esp, ebp
+           esp=0xffffd2a0 ebp=0xffffd2a8 eax=0x64 ebx=0xc8 ecx=0 edx=0 eip=0x8049029
+0xffffd2a0:	0x000000c8	0x00000064	0x00000000	0x08049005
+=> 0x8049029 <work+27>:	mov    esp,ebp
+26	    pop ebp
+           esp=0xffffd2a8 ebp=0xffffd2a8 eax=0x64 ebx=0xc8 ecx=0 edx=0 eip=0x804902b
+0xffffd2a8:	0x00000000	0x08049005	0x00000001	0xffffd402
+=> 0x804902b <work+29>:	pop    ebp
+27	    ret
+           esp=0xffffd2ac ebp=0000000000 eax=0x64 ebx=0xc8 ecx=0 edx=0 eip=0x804902c
+0xffffd2ac:	0x08049005	0x00000001	0xffffd402	0x00000000
+=> 0x804902c <work+30>:	ret
+_start () at 07_stack/04.asm:9
+9	    mov eax, 1
+           esp=0xffffd2b0 ebp=0000000000 eax=0x64 ebx=0xc8 ecx=0 edx=0 eip=0x8049005
+0xffffd2b0:	0x00000001	0xffffd402	0x00000000	0xffffd481
+=> 0x8049005 <_start+5>:	mov    eax,0x1
+10	    xor ebx, ebx
+           esp=0xffffd2b0 ebp=0000000000 eax=0x1 ebx=0xc8 ecx=0 edx=0 eip=0x804900a
+0xffffd2b0:	0x00000001	0xffffd402	0x00000000	0xffffd481
+=> 0x804900a <_start+10>:	xor    ebx,ebx
+11	    int 0x80
+           esp=0xffffd2b0 ebp=0000000000 eax=0x1 ebx=0 ecx=0 edx=0 eip=0x804900c
+0xffffd2b0:	0x00000001	0xffffd402	0x00000000	0xffffd481
+=> 0x804900c <_start+12>:	int    0x80
+[Inferior 1 (process 586) exited normally]
+
+----------------------------------------------------------------
+ 07_stack/05.asm  (64-bit)
+----------------------------------------------------------------
+$ nasm -f elf64 -g -F dwarf 07_stack/05.asm -o build/07_stack/05.o
+$ ld  build/07_stack/05.o -o build/07_stack/05
+$ ./build/07_stack/05 ; echo $?
+exit status: 0
+
+$ objdump -d -M intel build/07_stack/05
+0000000000401000 <_start>:
+  401000:	movabs rax,0x1122334455667788
+  40100a:	mov    ebx,0x1234
+  40100f:	push   rax
+  401010:	push   rbx
+  401011:	nop
+  401012:	pop    rbx
+  401013:	pop    rax
+  401014:	mov    eax,0x3c
+  401019:	xor    rdi,rdi
+  40101c:	syscall
+
+--- GDB single-step trace (state shown AFTER each instruction executes) ---
+_start () at 07_stack/05.asm:5
+5	    mov rax, 0x1122334455667788
+[initial]  rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0 rbx=0 rcx=0 rdx=0
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x401000 <_start>:	movabs rax,0x1122334455667788
+6	    mov rbx, 0x1234
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x1122334455667788 rbx=0 rcx=0 rdx=0 rip=0x40100a
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x40100a <_start+10>:	mov    ebx,0x1234
+8	    push rax
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x1122334455667788 rbx=0x1234 rcx=0 rdx=0 rip=0x40100f
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x40100f <_start+15>:	push   rax
+_start () at 07_stack/05.asm:9
+9	    push rbx
+           rsp=0x00007fffffffe188 rbp=000000000000000000 rax=0x1122334455667788 rbx=0x1234 rcx=0 rdx=0 rip=0x401010
+0x7fffffffe188:	0x1122334455667788	0x0000000000000001
+0x7fffffffe198:	0x00007fffffffe402	0x0000000000000000
+=> 0x401010 <_start+16>:	push   rbx
+_start () at 07_stack/05.asm:10
+10	    nop
+           rsp=0x00007fffffffe180 rbp=000000000000000000 rax=0x1122334455667788 rbx=0x1234 rcx=0 rdx=0 rip=0x401011
+0x7fffffffe180:	0x0000000000001234	0x1122334455667788
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x401011 <_start+17>:	nop
+12	    pop rbx
+           rsp=0x00007fffffffe180 rbp=000000000000000000 rax=0x1122334455667788 rbx=0x1234 rcx=0 rdx=0 rip=0x401012
+0x7fffffffe180:	0x0000000000001234	0x1122334455667788
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+=> 0x401012 <_start+18>:	pop    rbx
+_start () at 07_stack/05.asm:13
+13	    pop rax
+           rsp=0x00007fffffffe188 rbp=000000000000000000 rax=0x1122334455667788 rbx=0x1234 rcx=0 rdx=0 rip=0x401013
+0x7fffffffe188:	0x1122334455667788	0x0000000000000001
+0x7fffffffe198:	0x00007fffffffe402	0x0000000000000000
+=> 0x401013 <_start+19>:	pop    rax
+_start () at 07_stack/05.asm:15
+15	    mov rax, 60
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x1122334455667788 rbx=0x1234 rcx=0 rdx=0 rip=0x401014
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401014 <_start+20>:	mov    eax,0x3c
+16	    xor rdi, rdi
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x3c rbx=0x1234 rcx=0 rdx=0 rip=0x401019
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x401019 <_start+25>:	xor    rdi,rdi
+17	    syscall
+           rsp=0x00007fffffffe190 rbp=000000000000000000 rax=0x3c rbx=0x1234 rcx=0 rdx=0 rip=0x40101c
+0x7fffffffe190:	0x0000000000000001	0x00007fffffffe402
+0x7fffffffe1a0:	0x0000000000000000	0x00007fffffffe481
+=> 0x40101c <_start+28>:	syscall
+[Inferior 1 (process 610) exited normally]
+
+----------------------------------------------------------------
+ 07_stack/06.asm  (32-bit)
+----------------------------------------------------------------
+$ nasm -f elf32 -g -F dwarf 07_stack/06.asm -o build/07_stack/06.o
+$ ld -m elf_i386 build/07_stack/06.o -o build/07_stack/06
+$ ./build/07_stack/06 ; echo $?
+exit status: 0
+
+$ objdump -d -M intel build/07_stack/06
+08049000 <_start>:
+ 8049000:	mov    eax,0x11223344
+ 8049005:	mov    ebx,0x1234
+ 804900a:	push   eax
+ 804900b:	push   ebx
+ 804900c:	nop
+ 804900d:	pop    ebx
+ 804900e:	pop    eax
+ 804900f:	mov    eax,0x1
+ 8049014:	xor    ebx,ebx
+ 8049016:	int    0x80
+
+--- GDB single-step trace (state shown AFTER each instruction executes) ---
+_start () at 07_stack/06.asm:6
+6	    mov eax, 0x11223344
+[initial]  esp=0xffffd2b0 ebp=0000000000 eax=0 ebx=0 ecx=0 edx=0
+0xffffd2b0:	0x00000001	0xffffd402
+=> 0x8049000 <_start>:	mov    eax,0x11223344
+7	    mov ebx, 0x1234
+           esp=0xffffd2b0 ebp=0000000000 eax=0x11223344 ebx=0 ecx=0 edx=0 eip=0x8049005
+0xffffd2b0:	0x00000001	0xffffd402	0x00000000	0xffffd481
+=> 0x8049005 <_start+5>:	mov    ebx,0x1234
+9	    push eax
+           esp=0xffffd2b0 ebp=0000000000 eax=0x11223344 ebx=0x1234 ecx=0 edx=0 eip=0x804900a
+0xffffd2b0:	0x00000001	0xffffd402	0x00000000	0xffffd481
+=> 0x804900a <_start+10>:	push   eax
+10	    push ebx
+           esp=0xffffd2ac ebp=0000000000 eax=0x11223344 ebx=0x1234 ecx=0 edx=0 eip=0x804900b
+0xffffd2ac:	0x11223344	0x00000001	0xffffd402	0x00000000
+=> 0x804900b <_start+11>:	push   ebx
+11	    nop
+           esp=0xffffd2a8 ebp=0000000000 eax=0x11223344 ebx=0x1234 ecx=0 edx=0 eip=0x804900c
+0xffffd2a8:	0x00001234	0x11223344	0x00000001	0xffffd402
+=> 0x804900c <_start+12>:	nop
+13	    pop ebx
+           esp=0xffffd2a8 ebp=0000000000 eax=0x11223344 ebx=0x1234 ecx=0 edx=0 eip=0x804900d
+0xffffd2a8:	0x00001234	0x11223344	0x00000001	0xffffd402
+=> 0x804900d <_start+13>:	pop    ebx
+14	    pop eax
+           esp=0xffffd2ac ebp=0000000000 eax=0x11223344 ebx=0x1234 ecx=0 edx=0 eip=0x804900e
+0xffffd2ac:	0x11223344	0x00000001	0xffffd402	0x00000000
+=> 0x804900e <_start+14>:	pop    eax
+16	    mov eax, 1
+           esp=0xffffd2b0 ebp=0000000000 eax=0x11223344 ebx=0x1234 ecx=0 edx=0 eip=0x804900f
+0xffffd2b0:	0x00000001	0xffffd402	0x00000000	0xffffd481
+=> 0x804900f <_start+15>:	mov    eax,0x1
+17	    xor ebx, ebx
+           esp=0xffffd2b0 ebp=0000000000 eax=0x1 ebx=0x1234 ecx=0 edx=0 eip=0x8049014
+0xffffd2b0:	0x00000001	0xffffd402	0x00000000	0xffffd481
+=> 0x8049014 <_start+20>:	xor    ebx,ebx
+18	    int 0x80
+           esp=0xffffd2b0 ebp=0000000000 eax=0x1 ebx=0 ecx=0 edx=0 eip=0x8049016
+0xffffd2b0:	0x00000001	0xffffd402	0x00000000	0xffffd481
+=> 0x8049016 <_start+22>:	int    0x80
+[Inferior 1 (process 634) exited normally]
